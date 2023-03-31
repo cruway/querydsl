@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import study.querydsl.common.EnableQueryLog;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
@@ -103,5 +104,28 @@ public class QuerydslBasicTest {
                 .fetchOne();
 
         assertThat(findMember.getUserName()).isEqualTo("member1");
+    }
+
+    @Test
+    public void resultFetch() throws Exception {
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        /*Member fetchOne = queryFactory
+                .selectFrom(member)
+                .fetchOne();*/
+
+        Member fetchFirst = queryFactory
+                .selectFrom(member)
+                .fetchFirst();
+
+        /*QueryResults<Member> memberQueryResults = queryFactory
+                .selectFrom(member)
+                .fetchResults();*/ // Deprecated(現在使わない. fetchをおすすめ)
+        long count = queryFactory
+                .selectFrom(member)
+                .fetch().size();
+        System.out.println("count = " + count);
     }
 }
