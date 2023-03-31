@@ -13,7 +13,7 @@ spring:
         #show_sql: true
         format_sql: true
         #dialect: org.hibernate.dialect.oracle10gDialect
-        use_sql_comments: true # JPQL???????
+        use_sql_comments: false # JPQL???????
 
   data:
     web:
