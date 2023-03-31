@@ -10,6 +10,7 @@ import study.querydsl.common.EnableQueryLog;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 @DataJpaTest
 @EnableQueryLog
@@ -71,12 +72,10 @@ public class QuerydslBasicTest {
 
     @Test
     public void startQuerydsl() {
-        QMember m = QMember.member;
-
         Member findMember = queryFactory
-                .select(m)
-                .from(m)
-                .where(m.userName.eq("member1"))
+                .select(member)
+                .from(member)
+                .where(member.userName.eq("member1"))
                 .fetchOne();
 
         assertThat(findMember.getUserName()).isEqualTo("member1");
