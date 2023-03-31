@@ -258,4 +258,36 @@ public class QuerydslBasicTest {
                 .extracting("userName")
                 .containsExactly("teamA", "teamB");
     }
+
+    @Test
+    public void join_on_filtering() throws Exception {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team)
+                .on(team.teamName.eq("teamA"))
+                //.where(team.teamName.eq("teamA"))
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    @Test
+    public void join_on_no_relation() throws Exception {
+        em.persist(Member.builder().userName("teamA").build());
+        em.persist(Member.builder().userName("teamB").build());
+        em.persist(Member.builder().userName("teamC").build());
+
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .join(team).on(member.userName.eq(team.teamName))
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
 }
