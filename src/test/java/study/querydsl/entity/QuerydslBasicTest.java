@@ -1,5 +1,6 @@
 package study.querydsl.entity;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 @DataJpaTest
 @EnableQueryLog
@@ -124,8 +126,106 @@ public class QuerydslBasicTest {
                 .selectFrom(member)
                 .fetchResults();*/ // Deprecated(現在使わない. fetchをおすすめ)
         long count = queryFactory
+                .select(member.count())
+                .from(member)
+                .fetchOne();
+    }
+
+    @Test
+    public void sort() throws Exception {
+        em.persist(
+                Member.builder()
+                        .userName(null)
+                        .age(100)
+                        .build()
+        );
+        em.persist(
+                Member.builder()
+                        .userName("member5")
+                        .age(100)
+                        .build()
+        );
+        em.persist(
+                Member.builder()
+                        .userName("member6")
+                        .age(100)
+                        .build()
+        );
+        List<Member> result = queryFactory
                 .selectFrom(member)
-                .fetch().size();
-        System.out.println("count = " + count);
+                .where(member.age.eq(100))
+                .orderBy(member.age.desc(), member.userName.asc().nullsLast())
+                .fetch();
+
+        Member member5 = result.get(0);
+        Member member6 = result.get(1);
+        Member memberNull = result.get(2);
+
+        assertThat(member5.getUserName()).isEqualTo("member5");
+        assertThat(member6.getUserName()).isEqualTo("member6");
+        assertThat(memberNull.getUserName()).isNull();
+    }
+
+    @Test
+    public void paging1() throws Exception {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.userName.desc())
+                .offset(0)
+                .limit(2)
+                .fetch();
+
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void paging2() throws Exception {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.userName.desc())
+                .offset(1)
+                .limit(2)
+                .fetch();
+
+        assertThat(result.size()).isEqualTo(4);
+    }
+
+    @Test
+    public void aggregation() throws Exception {
+        List<Tuple> result = queryFactory
+                .select(
+                        member.count(),
+                        member.age.sum(),
+                        member.age.avg(),
+                        member.age.max(),
+                        member.age.min()
+                )
+                .from(member)
+                .fetch();
+        Tuple tuple = result.get(0);
+        assertThat(tuple.get(member.count())).isEqualTo(4);
+        assertThat(tuple.get(member.age.sum())).isEqualTo(100);
+        assertThat(tuple.get(member.age.avg())).isEqualTo(25);
+        assertThat(tuple.get(member.age.max())).isEqualTo(40);
+        assertThat(tuple.get(member.age.min())).isEqualTo(10);
+    }
+
+    @Test
+    public void group() throws Exception {
+        List<Tuple> result = queryFactory
+                .select(team.teamName, member.age.avg())
+                .from(member)
+                .join(member.team, team)
+                .groupBy(team.teamName)
+                .fetch();
+
+        Tuple teamA = result.get(0);
+        Tuple teamB = result.get(1);
+
+        assertThat(teamA.get(team.teamName)).isEqualTo("teamA");
+        assertThat(teamA.get(member.age.avg())).isEqualTo(15);
+
+        assertThat(teamB.get(team.teamName)).isEqualTo("teamB");
+        assertThat(teamB.get(member.age.avg())).isEqualTo(35);
     }
 }
