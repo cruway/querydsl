@@ -21,6 +21,15 @@ spring:
         max-page-size: 2000
         #one-indexed-parameters: true # paging 1
 
+  config:
+    activate:
+      on-profile: p6spy
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false #dev??prod????false
+
 logging.level:
   org.hibernate.SQL: debug
   #org.hibernate.type: trace
