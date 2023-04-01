@@ -1,6 +1,8 @@
 package study.querydsl.entity;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -388,6 +390,61 @@ public class QuerydslBasicTest {
 
         for (Tuple tuple : result) {
             System.out.println("tuple = " + tuple);
+        }
+    }
+    
+    @Test
+    public void basicCase() throws Exception {
+        List<String> result = queryFactory
+                .select(member.age
+                        .when(10).then("10歳")
+                        .when(20).then("20歳")
+                        .otherwise("その他"))
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void complexCase() throws Exception {
+        List<String> result = queryFactory
+                .select(new CaseBuilder()
+                        .when(member.age.between(0, 20)).then("0~20歳")
+                        .when(member.age.between(21, 30)).then("21~30歳")
+                        .otherwise("その他"))
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void constant() throws Exception {
+        List<Tuple> result = queryFactory
+                .select(member.userName, Expressions.constant("A"))
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    @Test
+    public void concat() throws Exception {
+        List<String> result = queryFactory
+                .select(member.userName.concat("_").concat(member.age.stringValue()))
+                .from(member)
+                .where(member.userName.eq("member1"))
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
         }
     }
 }
