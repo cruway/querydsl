@@ -31,6 +31,8 @@ decorator:
     p6spy:
       enable-logging: false #dev??prod????false
 
-logging.level:
-  org.hibernate.SQL: debug
-  #org.hibernate.type: trace
+logging:
+  level:
+    p6spy: info
+    org.hibernate.SQL: debug
+    #org.hibernate.type: trace
