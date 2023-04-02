@@ -1,4 +1,10 @@
 spring:
+  profiles:
+    active:
+      - local
+      - p6spy
+    include:
+      - test
   #datasource:
   #url: jdbc:h2:tcp://localhost/~/datajpa
   #username: sa
@@ -21,15 +27,6 @@ spring:
         default-page-size: 10
         max-page-size: 2000
         #one-indexed-parameters: true # paging 1
-
-  config:
-    activate:
-      on-profile: p6spy
-
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: false #dev??prod????false
 
 logging:
   level:
