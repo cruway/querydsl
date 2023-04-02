@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Commit;
 import study.querydsl.common.EnableQueryLog;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -616,5 +617,48 @@ public class QuerydslBasicTest {
 
     private BooleanExpression allEq(String userNameCond, Integer ageCond) {
         return userNameEq(userNameCond).and(ageEq(ageCond));
+    }
+    
+    @Test
+    @Commit
+    public void bulkUpdate() throws Exception {
+
+        // member1 = 10 -> 非会員
+        // member2 = 20 -> 非会員
+        // member3 = 30 -> 維持
+        // member4 = 40 -> 維持
+
+        long count = queryFactory
+                .update(member)
+                .set(member.userName, "非会員")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+    @Test
+    public void bulk() throws Exception {
+        long count = queryFactory
+                .update(member)
+                .set(member.age, member.age.multiply(1))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete() throws Exception {
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
     }
 }
