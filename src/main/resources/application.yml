@@ -1,15 +1,10 @@
 spring:
   profiles:
     active:
-      - local
+      #- local
       - p6spy
     include:
       - test
-  #datasource:
-  #url: jdbc:h2:tcp://localhost/~/datajpa
-  #username: sa
-  #password:
-  #driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
