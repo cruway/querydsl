@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.dto.MemberTeamDto;
 import study.querydsl.entity.Member;
+import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
@@ -138,4 +139,48 @@ class MemberRepositoryTest {
                 containsExactly("member1", "member2", "member3");
     }
 
+    @Test
+    public void querydslPredicateExecutorTest() throws Exception {
+
+        Team teamA = Team.builder()
+                .teamName("teamA")
+                .build();
+        Team teamB = Team.builder()
+                .teamName("teamB")
+                .build();
+        em.persist(teamA);
+        em.persist(teamB);
+
+        Member member1 = Member.builder()
+                .userName("member1")
+                .age(10)
+                .team(teamA)
+                .build();
+        Member member2 = Member.builder()
+                .userName("member2")
+                .age(20)
+                .team(teamA)
+                .build();
+        Member member3 = Member.builder()
+                .userName("member3")
+                .age(30)
+                .team(teamB)
+                .build();
+        Member member4 = Member.builder()
+                .userName("member4")
+                .age(40)
+                .team(teamB)
+                .build();
+
+        em.persist(member1);
+        em.persist(member2);
+        em.persist(member3);
+        em.persist(member4);
+
+        QMember member = QMember.member;
+        Iterable<Member> result = memberRepository.findAll(member.age.between(20, 40).and(member.userName.eq("member1")));
+        for (Member memberInfo : result) {
+            System.out.println("memberInfo = " + memberInfo);
+        }
+    }
 }
