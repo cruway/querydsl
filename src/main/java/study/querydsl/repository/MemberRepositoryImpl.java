@@ -67,7 +67,7 @@ public class MemberRepositoryImpl implements MemberRepositoryQuery {
 
         JPAQuery<Long> countQuery = getCount(condition);
         // return new PageImpl<>(content, pageable, count);
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     private List<MemberTeamDto> getMemberTeamDtoList(MemberSearchCondition condition, Pageable pageable) {

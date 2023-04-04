@@ -77,7 +77,8 @@ public abstract class QuerydslRepoSupportCustom {
     protected <T> Page<T> applyPagination(Pageable pageable, Function<JPAQueryFactory, JPAQuery> contentQuery) {
         JPAQuery jpaQuery = contentQuery.apply(getQueryFactory());
         List<T> content = getQuerydsl().applyPagination(pageable, jpaQuery).fetch();
-        return PageableExecutionUtils.getPage(content, pageable, jpaQuery::fetchCount);
+        JPAQuery<Long> jpaCount = jpaQuery;
+        return PageableExecutionUtils.getPage(content, pageable, jpaCount::fetchOne);
     }
 
     protected <T> Page<T> applyPagination(Pageable pageable,
@@ -86,7 +87,7 @@ public abstract class QuerydslRepoSupportCustom {
         JPAQuery jpaContentQuery = contentQuery.apply(getQueryFactory());
         List<T> content = getQuerydsl().applyPagination(pageable, jpaContentQuery).fetch();
 
-        JPAQuery countResult = countQuery.apply(getQueryFactory());
-        return PageableExecutionUtils.getPage(content, pageable, countResult::fetchCount);
+        JPAQuery<Long> countResult = countQuery.apply(getQueryFactory());
+        return PageableExecutionUtils.getPage(content, pageable, countResult::fetchOne);
     }
 }
